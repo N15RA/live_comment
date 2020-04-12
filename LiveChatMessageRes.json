@@ -1,0 +1,101 @@
+{
+    "kind": "youtube#liveChatMessageListResponse",
+    "etag": "\"tnVOtk4NeGU6nDncDTE5m9SmuHc/HKGZjpKTIx3b6DQ5aVehseJEQj4\"",
+    "nextPageToken": "GPzkno_f4-gCILj8_bbh4-gC",
+    "pollingIntervalMillis": 959,
+    "pageInfo":
+    {
+        "totalResults": 3,
+        "resultsPerPage": 3
+    },
+    "items":
+    [
+        {
+            "kind": "youtube#liveChatMessage",
+            "etag": "\"tnVOtk4NeGU6nDncDTE5m9SmuHc/0OhGAGd1wTHXkSTkkNytbgyIpdE\"",
+            "id": "LCC.CjgKDQoLWkNLRi1FUXIyOHcqJwoYVUNVcVk2VHhfRm9PQzBoVWRZelN4ekpnEgtaQ0tGLUVRcjI4dxI5ChpDS0NNMjQzZjQtZ0NGWS1NZ2dvZDNxVUdjZxIbQ0s2XzI5N2U0LWdDRlFaT1dBb2RoRHdFeGcw",
+            "snippet":
+            {
+                "type": "textMessageEvent",
+                "liveChatId": "Cg0KC1pDS0YtRVFyMjh3KicKGFVDVXFZNlR4X0ZvT0MwaFVkWXpTeHpKZxILWkNLRi1FUXIyOHc",
+                "authorChannelId": "UCUqY6Tx_FoOC0hUdYzSxzJg",
+                "publishedAt": "2020-04-12T20:38:08.219Z",
+                "hasDisplayContent": true,
+                "displayMessage": "123123123",
+                "textMessageDetails":
+                {
+                    "messageText": "123123123"
+                }
+            },
+            "authorDetails":
+            {
+                "channelId": "UCUqY6Tx_FoOC0hUdYzSxzJg",
+                "channelUrl": "http://www.youtube.com/channel/UCUqY6Tx_FoOC0hUdYzSxzJg",
+                "displayName": "NISRA FJU",
+                "profileImageUrl": "https://yt3.ggpht.com/-wogntYzs5k4/AAAAAAAAAAI/AAAAAAAAAAA/TVoNFvMFp7s/s88-c-k-no-mo-rj-c0xffffff/photo.jpg",
+                "isVerified": false,
+                "isChatOwner": true,
+                "isChatSponsor": false,
+                "isChatModerator": false
+            }
+        },
+        {
+            "kind": "youtube#liveChatMessage",
+            "etag": "\"tnVOtk4NeGU6nDncDTE5m9SmuHc/NxauaN5zUUBIakuFjK1pIfdvz2g\"",
+            "id": "LCC.CjgKDQoLWkNLRi1FUXIyOHcqJwoYVUNVcVk2VHhfRm9PQzBoVWRZelN4ekpnEgtaQ0tGLUVRcjI4dxI5ChpDTzJEbTRfZjQtZ0NGZmVCd2dFZE9uMEx5QRIbQ0s2XzI5N2U0LWdDRlFaT1dBb2RoRHdFeGcx",
+            "snippet":
+            {
+                "type": "textMessageEvent",
+                "liveChatId": "Cg0KC1pDS0YtRVFyMjh3KicKGFVDVXFZNlR4X0ZvT0MwaFVkWXpTeHpKZxILWkNLRi1FUXIyOHc",
+                "authorChannelId": "UCUqY6Tx_FoOC0hUdYzSxzJg",
+                "publishedAt": "2020-04-12T20:38:11.364Z",
+                "hasDisplayContent": true,
+                "displayMessage": "teste",
+                "textMessageDetails":
+                {
+                    "messageText": "teste"
+                }
+            },
+            "authorDetails":
+            {
+                "channelId": "UCUqY6Tx_FoOC0hUdYzSxzJg",
+                "channelUrl": "http://www.youtube.com/channel/UCUqY6Tx_FoOC0hUdYzSxzJg",
+                "displayName": "NISRA FJU",
+                "profileImageUrl": "https://yt3.ggpht.com/-wogntYzs5k4/AAAAAAAAAAI/AAAAAAAAAAA/TVoNFvMFp7s/s88-c-k-no-mo-rj-c0xffffff/photo.jpg",
+                "isVerified": false,
+                "isChatOwner": true,
+                "isChatSponsor": false,
+                "isChatModerator": false
+            }
+        },
+        {
+            "kind": "youtube#liveChatMessage",
+            "etag": "\"tnVOtk4NeGU6nDncDTE5m9SmuHc/H-KQgKsKLAndFFVsF_w2Ya9hPZs\"",
+            "id": "LCC.CjgKDQoLWkNLRi1FUXIyOHcqJwoYVUNVcVk2VHhfRm9PQzBoVWRZelN4ekpnEgtaQ0tGLUVRcjI4dxI5ChpDUHprbm9fZjQtZ0NGWVZRZ3dvZER3VU5qZxIbQ0s2XzI5N2U0LWdDRlFaT1dBb2RoRHdFeGcy",
+            "snippet":
+            {
+                "type": "textMessageEvent",
+                "liveChatId": "Cg0KC1pDS0YtRVFyMjh3KicKGFVDVXFZNlR4X0ZvT0MwaFVkWXpTeHpKZxILWkNLRi1FUXIyOHc",
+                "authorChannelId": "UCUqY6Tx_FoOC0hUdYzSxzJg",
+                "publishedAt": "2020-04-12T20:38:11.425Z",
+                "hasDisplayContent": true,
+                "displayMessage": "fuck you",
+                "textMessageDetails":
+                {
+                    "messageText": "fuck you"
+                }
+            },
+            "authorDetails":
+            {
+                "channelId": "UCUqY6Tx_FoOC0hUdYzSxzJg",
+                "channelUrl": "http://www.youtube.com/channel/UCUqY6Tx_FoOC0hUdYzSxzJg",
+                "displayName": "NISRA FJU",
+                "profileImageUrl": "https://yt3.ggpht.com/-wogntYzs5k4/AAAAAAAAAAI/AAAAAAAAAAA/TVoNFvMFp7s/s88-c-k-no-mo-rj-c0xffffff/photo.jpg",
+                "isVerified": false,
+                "isChatOwner": true,
+                "isChatSponsor": false,
+                "isChatModerator": false
+            }
+        }
+    ]
+}

@@ -1,0 +1,79 @@
+{
+ "kind": "youtube#liveBroadcastListResponse",
+ "etag": "\"tnVOtk4NeGU6nDncDTE5m9SmuHc/Kn8wYN91ZohU5gYgIlCVDLHw-Ok\"",
+ "pageInfo": {
+  "totalResults": 0,
+  "resultsPerPage": 5
+ },
+ "items": [
+  {
+   "kind": "youtube#liveBroadcast",
+   "etag": "\"tnVOtk4NeGU6nDncDTE5m9SmuHc/jOOgtvzFOhRxcx80KTHY_f4wldo\"",
+   "id": "ZCKF-EQr28w",
+   "snippet": {
+    "publishedAt": "2020-04-12T20:36:26.000Z",
+    "channelId": "UCUqY6Tx_FoOC0hUdYzSxzJg",
+    "title": "test",
+    "description": "",
+    "thumbnails": {
+     "default": {
+      "url": "https://i.ytimg.com/vi/ZCKF-EQr28w/default_live.jpg",
+      "width": 120,
+      "height": 90
+     },
+     "medium": {
+      "url": "https://i.ytimg.com/vi/ZCKF-EQr28w/mqdefault_live.jpg",
+      "width": 320,
+      "height": 180
+     },
+     "high": {
+      "url": "https://i.ytimg.com/vi/ZCKF-EQr28w/hqdefault_live.jpg",
+      "width": 480,
+      "height": 360
+     },
+     "standard": {
+      "url": "https://i.ytimg.com/vi/ZCKF-EQr28w/sddefault_live.jpg",
+      "width": 640,
+      "height": 480
+     },
+     "maxres": {
+      "url": "https://i.ytimg.com/vi/ZCKF-EQr28w/maxresdefault_live.jpg",
+      "width": 1280,
+      "height": 720
+     }
+    },
+    "scheduledStartTime": "2020-04-12T20:36:25.000Z",
+    "isDefaultBroadcast": false,
+    "liveChatId": "Cg0KC1pDS0YtRVFyMjh3KicKGFVDVXFZNlR4X0ZvT0MwaFVkWXpTeHpKZxILWkNLRi1FUXIyOHc"
+   },
+   "status": {
+    "lifeCycleStatus": "ready",
+    "privacyStatus": "unlisted",
+    "recordingStatus": "notRecording",
+    "madeForKids": false,
+    "selfDeclaredMadeForKids": false
+   },
+   "contentDetails": {
+    "boundStreamId": "UqY6Tx_FoOC0hUdYzSxzJg1586723788581648",
+    "boundStreamLastUpdateTimeMs": "2020-04-12T20:36:28.612Z",
+    "monitorStream": {
+     "enableMonitorStream": true,
+     "broadcastStreamDelayMs": 0,
+     "embedHtml": "<iframe width=\"425\" height=\"344\" src=\"https://www.youtube.com/embed/ZCKF-EQr28w?autoplay=1&livemonitor=1\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>"
+    },
+    "enableEmbed": true,
+    "enableDvr": true,
+    "enableContentEncryption": false,
+    "startWithSlate": false,
+    "recordFromStart": true,
+    "enableClosedCaptions": false,
+    "closedCaptionsType": "closedCaptionsDisabled",
+    "enableLowLatency": false,
+    "latencyPreference": "normal",
+    "projection": "rectangular",
+    "enableAutoStart": false,
+    "enableAutoStop": false
+   }
+  }
+ ]
+}
