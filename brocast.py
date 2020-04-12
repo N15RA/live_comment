@@ -17,18 +17,45 @@ SCOPES = ["https://www.googleapis.com/auth/youtube.readonly"]
 
 API_SERVICE_NAME = "youtube"
 API_VERSION = "v3"
-CLIENT_SECRETS_FILE = "client_secret_other.json"
+CLIENT_SECRETS_FILE = "client_secret_other.json" # Get this from API console
+youtube = None
 
 app = flask.Flask(__name__)
 app.secret_key = os.urandom(128)
 
+def get_recent_liveChatId():
+    request = youtube.liveBroadcasts().list(
+        part="snippet,contentDetails,status",
+        broadcastType="all",
+        maxResults=1,
+        mine=True
+    )
+    response = request.execute()
+    return response["items"][0]["snippet"]["liveChatId"]
+
+def get_recent_liveChat(liveChatId):
+    req = youtube.liveChatMessages().list(
+        liveChatId=get_recent_liveChatId(),
+        part="id,snippet,authorDetails"
+    )
+    res = req.execute()
+    chat_list = []
+    for d in res["items"]:
+        c = {}
+        c["type"] = "youtube"
+        c["icon"] = d["authorDetails"]["profileImageUrl"]
+        c["name"] = d["authorDetails"]["displayName"]
+        c["time"] = d["snippet"]["publishedAt"]
+        c["comment"] = d["snippet"]["displayMessage"]
+        chat_list.append(c)
+    return chat_list
+
 @app.route('/')
 def index():
-  return print_index_table()
+    return flask.redirect(flask.url_for('listMessage'))
 
-
-@app.route('/test')
-def test_api_request():
+@app.route('/messages')
+def listMessage():
     if 'credentials' not in flask.session:
         return flask.redirect('authorize')
 
@@ -36,23 +63,18 @@ def test_api_request():
     credentials = google.oauth2.credentials.Credentials(
         **flask.session['credentials'])
 
+    global youtube
     youtube = googleapiclient.discovery.build(
         API_SERVICE_NAME, API_VERSION, credentials=credentials)
 
-    request = youtube.liveBroadcasts().list(
-        part="snippet,contentDetails,status",
-        broadcastType="all",
-        maxResults=50,
-        mine=True
-    )
-    response = request.execute()
+    chat_list = get_recent_liveChat(get_recent_liveChatId())
 
     # Save credentials back to session in case access token was refreshed.
     # ACTION ITEM: In a production app, you likely want to save these
     #              credentials in a persistent database instead.
     flask.session['credentials'] = credentials_to_dict(credentials)
 
-    return flask.jsonify(**response)
+    return flask.jsonify(chat_list)
 
 
 @app.route('/authorize')
@@ -100,7 +122,7 @@ def oauth2callback():
     credentials = flow.credentials
     flask.session['credentials'] = credentials_to_dict(credentials)
 
-    return flask.redirect(flask.url_for('test_api_request'))
+    return flask.redirect(flask.url_for('index'))
 
 
 @app.route('/revoke')
