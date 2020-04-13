@@ -1,16 +1,16 @@
-{
+[
     {
         "type": "youtube",
         "icon": "uri",
         "name": "roy4801",
-        "comment": "Im a comment"
+        "comment": "Im a comment",
         "time": "2020-04-12T23:08:40.914Z"
     },
     {
         "type": "slido",
         "icon": "uri",
         "name": "roy4801",
-        "comment": "Im a comment"
+        "comment": "Im a comment",
         "time": "2020-04-12T23:08:40.914Z"
-    }, ...
-}
+    }
+]

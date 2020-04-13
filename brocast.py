@@ -1,52 +1,64 @@
 # -*- coding: utf-8 -*-
-
-# Sample Python code for youtube.liveBroadcasts.list
-# See instructions for running these code samples locally:
-# https://developers.google.com/explorer-help/guides/code_samples#python
-
 import os
 import flask
 import requests
+import datetime
+import json
+import hashlib
 
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
 import googleapiclient.discovery
 import googleapiclient.errors
 
-SCOPES = ["https://www.googleapis.com/auth/youtube.readonly"]
+SCOPES = ['https://www.googleapis.com/auth/youtube.readonly']
 
-API_SERVICE_NAME = "youtube"
-API_VERSION = "v3"
-CLIENT_SECRETS_FILE = "client_secret_other.json" # Get this from API console
+API_SERVICE_NAME = 'youtube'
+API_VERSION = 'v3'
+CLIENT_SECRETS_FILE = 'client_secret.json' # Get this from API console
 youtube = None
 
-app = flask.Flask(__name__)
-app.secret_key = os.urandom(128)
+from ext_app import app
+from exts import db
+from models import *
+
+STREAM_ID = 'UVyJXeqlMpk'
 
 def get_recent_liveChatId():
     request = youtube.liveBroadcasts().list(
-        part="snippet,contentDetails,status",
-        broadcastType="all",
-        maxResults=1,
+        part='snippet,contentDetails,status',
+        broadcastType='all',
+        maxResults=50,
         mine=True
     )
-    response = request.execute()
-    return response["items"][0]["snippet"]["liveChatId"]
+    res = request.execute()
 
-def get_recent_liveChat(liveChatId):
+    chat_id = None
+    for r in res['items']:
+        if r['id'] == STREAM_ID:
+            chat_id = r['snippet']['liveChatId']
+
+            with open('livelist.json', 'w') as f:
+                f.write(json.dumps(r))
+            break
+    return chat_id
+
+def get_recent_yt_liveChat(liveChatId):
     req = youtube.liveChatMessages().list(
         liveChatId=get_recent_liveChatId(),
-        part="id,snippet,authorDetails"
+        part='id,snippet,authorDetails'
     )
     res = req.execute()
+    with open('livechat.json', 'w') as f:
+        f.write(json.dumps(res))
     chat_list = []
-    for d in res["items"]:
+    for d in res['items']:
         c = {}
-        c["type"] = "youtube"
-        c["icon"] = d["authorDetails"]["profileImageUrl"]
-        c["name"] = d["authorDetails"]["displayName"]
-        c["time"] = d["snippet"]["publishedAt"]
-        c["comment"] = d["snippet"]["displayMessage"]
+        c['type'] = 'youtube'
+        c['icon'] = d['authorDetails']['profileImageUrl']
+        c['name'] = d['authorDetails']['displayName']
+        c['time'] = d['snippet']['publishedAt']
+        c['comment'] = d['snippet']['displayMessage']
         chat_list.append(c)
     return chat_list
 
@@ -67,15 +79,30 @@ def listMessage():
     youtube = googleapiclient.discovery.build(
         API_SERVICE_NAME, API_VERSION, credentials=credentials)
 
-    chat_list = get_recent_liveChat(get_recent_liveChatId())
+    chat_list = get_recent_yt_liveChat(get_recent_liveChatId())
+
+    for r in chat_list:
+        col = Comment()
+        col.type = {'youtube': 0, 'slido': 1}[r['type']]
+        col.name = r['name']
+        col.icon = r['icon']
+        col.text = r['comment']
+        ts = r['time'][:-1] # strip 'Z'
+        col.time = datetime.datetime.fromisoformat(ts) 
+        #
+        col_md5 = col.to_md5()
+        query = CommentHash.query.filter_by(hash=col_md5)
+        if not query.count():
+            db.session.add(CommentHash(hash=col_md5))
+            db.session.add(col)
+    db.session.commit()
 
     # Save credentials back to session in case access token was refreshed.
     # ACTION ITEM: In a production app, you likely want to save these
     #              credentials in a persistent database instead.
     flask.session['credentials'] = credentials_to_dict(credentials)
 
-    return flask.jsonify(chat_list)
-
+    return flask.jsonify([i.to_dict() for i in Comment.query.all()])
 
 @app.route('/authorize')
 def authorize():
@@ -188,7 +215,6 @@ if __name__ == '__main__':
     # ACTION ITEM for developers:
     #     When running in production *do not* leave this option enabled.
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
-
     # Specify a hostname and port that are set as a valid redirect URI
     # for your API project in the Google API Console.
     app.run('localhost', 8080, debug=True)

@@ -1,6 +1,7 @@
 
 ### Credentials ###
 client_secret*.json
+*.db
 
 ### Python ###
 

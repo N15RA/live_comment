@@ -3,4 +3,8 @@ google-auth
 google-auth-oauthlib
 google-auth-httplib2
 flask
+flask_cors
+flask_sqlalchemy
+flask_migrate
+flask_script
 requests
