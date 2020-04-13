@@ -1,18 +1,29 @@
 import datetime
 import hashlib
 
-from exts import db
+from sqlalchemy import Column, types
+from sqlalchemy import MetaData
+from sqlservice import ModelBase, as_declarative, declarative_base
 
-class Comment(db.Model):
+metadata = MetaData()
+
+# @as_declarative(metadata=metadata)
+# class Model(ModelBase):
+#     pass
+
+# Or using the declarative_base function...
+Model = declarative_base(ModelBase, metadata=metadata)
+
+class Comment(Model):
     __tablename__ = 'comment'
-    id = db.Column(db.Integer, primary_key=True)
-    type = db.Column(db.SmallInteger, default=-1) # 0 for yt, 1 for slido
-    name = db.Column(db.Text, nullable=False, default='Noname')
-    icon = db.Column(db.Text, nullable=True)
-    text = db.Column(db.Text, nullable=True)
-    time = db.Column(db.DateTime, default=datetime.datetime.now())
+    id = Column(types.Integer, primary_key=True)
+    type = Column(types.SmallInteger, default=-1) # 0 for yt, 1 for slido
+    name = Column(types.Text, nullable=False, default='Noname')
+    icon = Column(types.Text, nullable=True)
+    text = Column(types.Text, nullable=True)
+    time = Column(types.DateTime, default=datetime.datetime.now())
 
-    stream_id = db.Column(db.String, nullable=False)
+    stream_id = Column(types.String, nullable=False)
 
     def __repr__(self):
         return f'<Comment {self.id} {self.name}>'
@@ -31,20 +42,20 @@ class Comment(db.Model):
         m.update(f'{self.id}{self.type}{self.name}{self.icon}{self.text}{self.time}'.encode('utf-8'))
         return m.hexdigest()
 
-class CommentHash(db.Model):
+class CommentHash(Model):
     __tablename__ = 'comment_hash'
 
-    id = db.Column(db.Integer, primary_key=True)
-    hash = db.Column(db.String(32), nullable=False, unique=True)
+    id = Column(types.Integer, primary_key=True)
+    hash = Column(types.String(32), nullable=False, unique=True)
 
     def __repr__(self):
         return f'<CommentHash {self.id} {self.hash}>'
 
-class Token(db.Model):
+class Token(Model):
     __tablename__ = 'token'
 
-    id = db.Column(db.Integer, primary_key=True)
-    credentials = db.Column(db.JSON)
+    id = Column(types.Integer, primary_key=True)
+    credentials = Column(types.JSON)
 
     def __repr__(self):
         return f'<Token {self.id}>'

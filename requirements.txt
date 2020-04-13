@@ -4,7 +4,7 @@ google-auth-oauthlib
 google-auth-httplib2
 flask
 flask_cors
-flask_sqlalchemy
+sqlservice
 flask_migrate
 flask_script
 requests

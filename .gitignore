@@ -5,6 +5,7 @@ client_secret*.json
 ### Databases ###
 *.db
 migrations/
+live*.json
 
 ### Python ###
 

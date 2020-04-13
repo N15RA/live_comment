@@ -70,11 +70,11 @@ def index():
 
 @app.route('/refresh/<string:stream_id>')
 def refresh(stream_id):
-    if Token.query.count() == 0:
+    if db.query(Token).count() == 0:
         return flask.redirect(flask.url_for('authorize'))
 
     # Load credentials
-    token = Token.query.first()
+    token = db.query(Token).first()
     credentials = google.oauth2.credentials.Credentials(
         **token.credentials)
 
@@ -98,7 +98,7 @@ def refresh(stream_id):
         col.stream_id = stream_id
         #
         col_md5 = col.to_md5()
-        query = CommentHash.query.filter_by(hash=col_md5)
+        query = db.query(CommentHash).filter_by(hash=col_md5)
         if not query.count():
             db.session.add(CommentHash(hash=col_md5))
             db.session.add(col)
@@ -109,20 +109,20 @@ def refresh(stream_id):
 @app.route('/messages')
 @app.route('/messages/<string:stream_id>')
 def listMessage(stream_id=None):
-    if Token.query.count() == 0:
+    if db.query(Token).count() == 0:
         return flask.redirect(flask.url_for('authorize'))
     # TODO: make load/save credentials to func decorator
     # Load credentials
-    token = Token.query.first()
+    token = db.query(Token).first()
     credentials = google.oauth2.credentials.Credentials(
         **token.credentials)
 
     # Save credentials
-    token = Token.query.first()
+    token = db.query(Token).first()
     token.credentials = credentials_to_dict(credentials)
     db.session.commit()
 
-    comment_list = [i.to_dict() for i in Comment.query.filter_by(stream_id=stream_id).all()]
+    comment_list = [i.to_dict() for i in db.query(Comment).filter_by(stream_id=stream_id).all()]
     return flask.jsonify(comment_list)
 
 @app.route('/authorize')
@@ -170,7 +170,7 @@ def oauth2callback():
     credentials = flow.credentials
     flask.session['credentials'] = credentials_to_dict(credentials)
 
-    if Token.query.count() == 0:
+    if db.query(Token).count() == 0:
         token = Token(credentials=credentials_to_dict(credentials))
         db.session.add(token)
         db.session.commit()

@@ -1,2 +1,7 @@
 * Change time to UTC+8
-* Make oauth type to client
+* Understand the details of sqlalchemy and sqlservice
+    * https://github.com/dgilland/sqlservice/issues/3
+    * https://gist.github.com/kageurufu/2a4677974966c0ca6a196d6889ac05f8
+    * https://github.com/Oliver2213/datadrop
+    * https://github.com/dgilland/sqlservice
+    * https://web.archive.org/web/20190530064812/http://derrickgilland.com/posts/demystifying-flask-sqlalchemy/
