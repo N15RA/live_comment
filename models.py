@@ -12,17 +12,18 @@ class Comment(db.Model):
     text = db.Column(db.Text, nullable=True)
     time = db.Column(db.DateTime, default=datetime.datetime.now())
 
+    stream_id = db.Column(db.String, nullable=False)
+
     def __repr__(self):
         return f'<Comment {self.id} {self.name}>'
 
     def to_dict(self):
         return {
-            # 'id': self.id,
             'type': self.type,
             'name': self.name,
             'icon': self.icon,
             'text': self.text,
-            'time': self.time,
+            'time': self.time.strftime('%Y-%m-%d %H:%M:%S')
         }
 
     def to_md5(self):

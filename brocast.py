@@ -15,27 +15,25 @@ SCOPES = ['https://www.googleapis.com/auth/youtube.readonly']
 
 API_SERVICE_NAME = 'youtube'
 API_VERSION = 'v3'
-CLIENT_SECRETS_FILE = 'client_secret.json' # Get this from API console
+CLIENT_SECRETS_FILE = 'client_secret_other.json' # Get this from API console
 youtube = None
 
 from ext_app import app
 from exts import db
 from models import *
 
-STREAM_ID = 'UVyJXeqlMpk'
-
-def get_recent_liveChatId():
+def get_recent_liveChatId(stream_id):
     request = youtube.liveBroadcasts().list(
         part='snippet,contentDetails,status',
         broadcastType='all',
-        maxResults=50,
+        maxResults=5,
         mine=True
     )
     res = request.execute()
 
     chat_id = None
     for r in res['items']:
-        if r['id'] == STREAM_ID:
+        if r['id'] == stream_id:
             chat_id = r['snippet']['liveChatId']
 
             with open('livelist.json', 'w') as f:
@@ -43,9 +41,13 @@ def get_recent_liveChatId():
             break
     return chat_id
 
-def get_recent_yt_liveChat(liveChatId):
+def get_recent_yt_liveChat(stream_id):
+    chat_id = get_recent_liveChatId(stream_id)
+    if not chat_id:
+        return []
+
     req = youtube.liveChatMessages().list(
-        liveChatId=get_recent_liveChatId(),
+        liveChatId=chat_id,
         part='id,snippet,authorDetails'
     )
     res = req.execute()
@@ -66,29 +68,34 @@ def get_recent_yt_liveChat(liveChatId):
 def index():
     return flask.redirect(flask.url_for('listMessage'))
 
-@app.route('/messages')
-def listMessage():
-    if 'credentials' not in flask.session:
-        return flask.redirect('authorize')
+@app.route('/refresh/<string:stream_id>')
+def refresh(stream_id):
+    if Token.query.count() == 0:
+        return flask.redirect(flask.url_for('authorize'))
 
-    # Load credentials from the session.
+    # Load credentials
+    token = Token.query.first()
     credentials = google.oauth2.credentials.Credentials(
-        **flask.session['credentials'])
+        **token.credentials)
 
+    # Build API client if necessary
     global youtube
-    youtube = googleapiclient.discovery.build(
-        API_SERVICE_NAME, API_VERSION, credentials=credentials)
+    if not youtube:
+        youtube = googleapiclient.discovery.build(
+            API_SERVICE_NAME, API_VERSION, credentials=credentials)
 
-    chat_list = get_recent_yt_liveChat(get_recent_liveChatId())
-
+    # Get comment list
+    chat_list = get_recent_yt_liveChat(stream_id)
     for r in chat_list:
         col = Comment()
         col.type = {'youtube': 0, 'slido': 1}[r['type']]
         col.name = r['name']
         col.icon = r['icon']
         col.text = r['comment']
-        ts = r['time'][:-1] # strip 'Z'
-        col.time = datetime.datetime.fromisoformat(ts) 
+        #
+        ts = r['time'][:19] # strip .xxxZ
+        col.time = datetime.datetime.strptime(ts, '%Y-%m-%dT%H:%M:%S')
+        col.stream_id = stream_id
         #
         col_md5 = col.to_md5()
         query = CommentHash.query.filter_by(hash=col_md5)
@@ -97,12 +104,26 @@ def listMessage():
             db.session.add(col)
     db.session.commit()
 
-    # Save credentials back to session in case access token was refreshed.
-    # ACTION ITEM: In a production app, you likely want to save these
-    #              credentials in a persistent database instead.
-    flask.session['credentials'] = credentials_to_dict(credentials)
+    return flask.jsonify(result='success', time=datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S'))
 
-    return flask.jsonify([i.to_dict() for i in Comment.query.all()])
+@app.route('/messages')
+@app.route('/messages/<string:stream_id>')
+def listMessage(stream_id=None):
+    if Token.query.count() == 0:
+        return flask.redirect(flask.url_for('authorize'))
+    # TODO: make load/save credentials to func decorator
+    # Load credentials
+    token = Token.query.first()
+    credentials = google.oauth2.credentials.Credentials(
+        **token.credentials)
+
+    # Save credentials
+    token = Token.query.first()
+    token.credentials = credentials_to_dict(credentials)
+    db.session.commit()
+
+    comment_list = [i.to_dict() for i in Comment.query.filter_by(stream_id=stream_id).all()]
+    return flask.jsonify(comment_list)
 
 @app.route('/authorize')
 def authorize():
@@ -148,6 +169,11 @@ def oauth2callback():
     #              credentials in a persistent database instead.
     credentials = flow.credentials
     flask.session['credentials'] = credentials_to_dict(credentials)
+
+    if Token.query.count() == 0:
+        token = Token(credentials=credentials_to_dict(credentials))
+        db.session.add(token)
+        db.session.commit()
 
     return flask.redirect(flask.url_for('index'))
 

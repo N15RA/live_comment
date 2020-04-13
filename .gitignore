@@ -1,7 +1,10 @@
 
 ### Credentials ###
 client_secret*.json
+
+### Databases ###
 *.db
+migrations/
 
 ### Python ###
 
