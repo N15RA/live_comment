@@ -1,3 +1,4 @@
+* Add command line options
 * Change time to UTC+8
 * Understand the details of sqlalchemy and sqlservice
     * https://github.com/dgilland/sqlservice/issues/3

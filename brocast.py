@@ -12,99 +12,15 @@ import googleapiclient.discovery
 import googleapiclient.errors
 
 SCOPES = ['https://www.googleapis.com/auth/youtube.readonly']
-
-API_SERVICE_NAME = 'youtube'
-API_VERSION = 'v3'
-CLIENT_SECRETS_FILE = 'client_secret_other.json' # Get this from API console
-youtube = None
+CLIENT_SECRETS_FILE = 'client_secret.json' # Get this from API console
 
 from ext_app import app
 from exts import db
 from models import *
 
-def get_recent_liveChatId(stream_id):
-    request = youtube.liveBroadcasts().list(
-        part='snippet,contentDetails,status',
-        broadcastType='all',
-        maxResults=5,
-        mine=True
-    )
-    res = request.execute()
-
-    chat_id = None
-    for r in res['items']:
-        if r['id'] == stream_id:
-            chat_id = r['snippet']['liveChatId']
-
-            with open('livelist.json', 'w') as f:
-                f.write(json.dumps(r))
-            break
-    return chat_id
-
-def get_recent_yt_liveChat(stream_id):
-    chat_id = get_recent_liveChatId(stream_id)
-    if not chat_id:
-        return []
-
-    req = youtube.liveChatMessages().list(
-        liveChatId=chat_id,
-        part='id,snippet,authorDetails'
-    )
-    res = req.execute()
-    with open('livechat.json', 'w') as f:
-        f.write(json.dumps(res))
-    chat_list = []
-    for d in res['items']:
-        c = {}
-        c['type'] = 'youtube'
-        c['icon'] = d['authorDetails']['profileImageUrl']
-        c['name'] = d['authorDetails']['displayName']
-        c['time'] = d['snippet']['publishedAt']
-        c['comment'] = d['snippet']['displayMessage']
-        chat_list.append(c)
-    return chat_list
-
 @app.route('/')
 def index():
     return flask.redirect(flask.url_for('listMessage'))
-
-@app.route('/refresh/<string:stream_id>')
-def refresh(stream_id):
-    if db.query(Token).count() == 0:
-        return flask.redirect(flask.url_for('authorize'))
-
-    # Load credentials
-    token = db.query(Token).first()
-    credentials = google.oauth2.credentials.Credentials(
-        **token.credentials)
-
-    # Build API client if necessary
-    global youtube
-    if not youtube:
-        youtube = googleapiclient.discovery.build(
-            API_SERVICE_NAME, API_VERSION, credentials=credentials)
-
-    # Get comment list
-    chat_list = get_recent_yt_liveChat(stream_id)
-    for r in chat_list:
-        col = Comment()
-        col.type = {'youtube': 0, 'slido': 1}[r['type']]
-        col.name = r['name']
-        col.icon = r['icon']
-        col.text = r['comment']
-        #
-        ts = r['time'][:19] # strip .xxxZ
-        col.time = datetime.datetime.strptime(ts, '%Y-%m-%dT%H:%M:%S')
-        col.stream_id = stream_id
-        #
-        col_md5 = col.to_md5()
-        query = db.query(CommentHash).filter_by(hash=col_md5)
-        if not query.count():
-            db.session.add(CommentHash(hash=col_md5))
-            db.session.add(col)
-    db.session.commit()
-
-    return flask.jsonify(result='success', time=datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S'))
 
 @app.route('/messages')
 @app.route('/messages/<string:stream_id>')
@@ -213,28 +129,6 @@ def credentials_to_dict(credentials):
             'client_id': credentials.client_id,
             'client_secret': credentials.client_secret,
             'scopes': credentials.scopes}
-
-def print_index_table():
-    return ('<table>' +
-            '<tr><td><a href="/test">Test an API request</a></td>' +
-            '<td>Submit an API request and see a formatted JSON response. ' +
-            '    Go through the authorization flow if there are no stored ' +
-            '    credentials for the user.</td></tr>' +
-            '<tr><td><a href="/authorize">Test the auth flow directly</a></td>' +
-            '<td>Go directly to the authorization flow. If there are stored ' +
-            '    credentials, you still might not be prompted to reauthorize ' +
-            '    the application.</td></tr>' +
-            '<tr><td><a href="/revoke">Revoke current credentials</a></td>' +
-            '<td>Revoke the access token associated with the current user ' +
-            '    session. After revoking credentials, if you go to the test ' +
-            '    page, you should see an <code>invalid_grant</code> error.' +
-            '</td></tr>' +
-            '<tr><td><a href="/clear">Clear Flask session credentials</a></td>' +
-            '<td>Clear the access token currently stored in the user session. ' +
-            '    After clearing the token, if you <a href="/test">test the ' +
-            '    API request</a> again, you should go back to the auth flow.' +
-            '</td></tr></table>')
-
 
 if __name__ == '__main__':
     # When running locally, disable OAuthlib's HTTPs verification.
