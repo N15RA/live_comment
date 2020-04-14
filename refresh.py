@@ -11,7 +11,7 @@ HOST = 'localhost'
 PORT = '8080'
 
 YT_STREAM_ID = 'IQk5FI4kODw'
-SLIDO_EVENT_HASH = 'iart3yv0'
+SLIDO_EVENT_HASH = 'gwbbskoz'
 
 API_SERVICE_NAME = 'youtube'
 API_VERSION = 'v3'
