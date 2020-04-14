@@ -23,10 +23,11 @@ class Comment(Model):
     text = Column(types.Text, nullable=True)
     time = Column(types.DateTime, default=datetime.datetime.now())
 
+    # slido doesn't have streamid
     stream_id = Column(types.String, nullable=False)
 
     def __repr__(self):
-        return f'<Comment {self.id} {self.name}>'
+        return f'<Comment {self.id} {self.name} {self.time} {self.text} {self.to_md5()}>'
 
     def to_dict(self):
         return {
@@ -39,7 +40,7 @@ class Comment(Model):
 
     def to_md5(self):
         m = hashlib.md5()
-        m.update(f'{self.id}{self.type}{self.name}{self.icon}{self.text}{self.time}'.encode('utf-8'))
+        m.update(f'{self.type}{self.name}{self.icon}{self.text}{self.time}{self.stream_id}'.encode('utf-8'))
         return m.hexdigest()
 
 class CommentHash(Model):

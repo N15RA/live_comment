@@ -17,6 +17,7 @@ CLIENT_SECRETS_FILE = 'client_secret.json' # Get this from API console
 from ext_app import app
 from exts import db
 from models import *
+from utils import credentials_to_dict
 
 @app.route('/')
 def index():
@@ -25,20 +26,7 @@ def index():
 @app.route('/messages')
 @app.route('/messages/<string:stream_id>')
 def listMessage(stream_id=None):
-    if db.query(Token).count() == 0:
-        return flask.redirect(flask.url_for('authorize'))
-    # TODO: make load/save credentials to func decorator
-    # Load credentials
-    token = db.query(Token).first()
-    credentials = google.oauth2.credentials.Credentials(
-        **token.credentials)
-
-    # Save credentials
-    token = db.query(Token).first()
-    token.credentials = credentials_to_dict(credentials)
-    db.session.commit()
-
-    comment_list = [i.to_dict() for i in db.query(Comment).filter_by(stream_id=stream_id).all()]
+    comment_list = [i.to_dict() for i in db.query(Comment).filter_by(stream_id=stream_id).order_by(Comment.time.desc()).all()]
     return flask.jsonify(comment_list)
 
 @app.route('/authorize')
@@ -109,26 +97,16 @@ def revoke():
 
     status_code = getattr(revoke, 'status_code')
     if status_code == 200:
-        return('Credentials successfully revoked.' + print_index_table())
+        return('Credentials successfully revoked.')
     else:
-        return('An error occurred.' + print_index_table())
+        return('An error occurred.')
 
 
 @app.route('/clear')
 def clear_credentials():
     if 'credentials' in flask.session:
         del flask.session['credentials']
-    return ('Credentials have been cleared.<br><br>' +
-            print_index_table())
-
-
-def credentials_to_dict(credentials):
-    return {'token': credentials.token,
-            'refresh_token': credentials.refresh_token,
-            'token_uri': credentials.token_uri,
-            'client_id': credentials.client_id,
-            'client_secret': credentials.client_secret,
-            'scopes': credentials.scopes}
+    return ('Credentials have been cleared.<br><br>')
 
 if __name__ == '__main__':
     # When running locally, disable OAuthlib's HTTPs verification.

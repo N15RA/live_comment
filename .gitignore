@@ -4,6 +4,7 @@ client_secret*.json
 
 ### Databases ###
 *.db
+*.db*
 migrations/
 live*.json
 
