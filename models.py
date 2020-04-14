@@ -31,7 +31,7 @@ class Comment(Model):
 
     def to_dict(self):
         return {
-            'type': self.type,
+            'type': ['youtube', 'slido'][self.type],
             'name': self.name,
             'icon': self.icon,
             'text': self.text,

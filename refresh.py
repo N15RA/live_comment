@@ -153,7 +153,7 @@ def get_slido_auth_token(event_uuid):
 
 # sort = top|newest|oldest
 # limit >= 1
-def get_slido_comments(event_uuid, access_token, sort='newest', limit=9999):
+def get_slido_comments(event_hash, event_uuid, access_token, sort='newest', limit=9999):
     comment_list = requests.get(f'https://app.sli.do/api/v0.5/events/{event_uuid}/questions?sort={sort}&limit={limit}', headers={
         'Authorization': f'Bearer {access_token}'
     }).json()
@@ -164,7 +164,7 @@ def get_slido_comments(event_uuid, access_token, sort='newest', limit=9999):
             name=c['author'].get('name', None) or 'Anonymous',
             text=c['text'],
             time=datetime.datetime.strptime(c['date_updated'][:19], '%Y-%m-%dT%H:%M:%S'),
-            stream_id='slido'
+            stream_id=event_hash
         )
         db.session.add(r)
         # Check hash
@@ -188,7 +188,7 @@ def refresh_slido(hash):
         if not access_token:
             access_token = get_slido_auth_token(event_uuid)
         # Update slido comment to db
-        get_slido_comments(event_uuid, access_token)
+        get_slido_comments(hash, event_uuid, access_token)
     # TODO: Handle exception properly
     except Exception as e:
         print(e)

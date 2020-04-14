@@ -11,6 +11,8 @@ import google_auth_oauthlib.flow
 import googleapiclient.discovery
 import googleapiclient.errors
 
+from sqlalchemy import or_
+
 SCOPES = ['https://www.googleapis.com/auth/youtube.readonly']
 CLIENT_SECRETS_FILE = 'client_secret.json' # Get this from API console
 
@@ -24,9 +26,18 @@ def index():
     return flask.redirect(flask.url_for('listMessage'))
 
 @app.route('/messages')
-@app.route('/messages/<string:stream_id>')
-def listMessage(stream_id=None):
-    comment_list = [i.to_dict() for i in db.query(Comment).filter_by(stream_id=stream_id).order_by(Comment.time.desc()).all()]
+def listMessage():
+    args = flask.request.args
+
+    stream_id = args.get('youtube', '')
+    slido_hash = args.get('slido', '')
+
+    comment_list = [i.to_dict() for i in db.query(Comment)
+        .filter(or_(Comment.stream_id == stream_id, Comment.stream_id == slido_hash))
+        .order_by(Comment.time.desc())
+        .all()
+    ]
+
     return flask.jsonify(comment_list)
 
 @app.route('/authorize')
