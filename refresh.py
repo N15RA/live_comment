@@ -29,7 +29,7 @@ config = {
     # 'SQL_POOL_RECYCLE': 3600,
     # 'SQL_MAX_OVERFLOW': 10,
     'SQL_AUTOCOMMIT': False,
-    'SQL_AUTOFLUSH': True,
+    'SQL_AUTOFLUSH': False,
     'SQL_EXPIRE_ON_COMMIT': True
 }
 db = SQLClient(config, model_class=Model)
@@ -173,13 +173,13 @@ def get_slido_comments(event_hash, event_uuid, access_token, sort='newest', limi
             # Add hash
             db.session.add(CommentHash(hash=r.to_md5()))
             db.session.commit()
-        db.session.flush()
 
 # hash = event hash
 event_uuid = None
 access_token = None
 def refresh_slido(hash):
     try:
+        # Update event uuid
         global event_uuid
         if not event_uuid:
             event_uuid = get_slido_event_uuid(hash)
@@ -231,7 +231,7 @@ def main():
             #
             print('Succeeded to refresh the comments: {}'.format(datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')))
             start = time.time()
-        time.sleep(0.3)
+        time.sleep(1)
 
 if __name__ == '__main__':
     main()
