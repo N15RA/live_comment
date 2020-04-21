@@ -166,9 +166,10 @@ def get_slido_comments(event_hash, event_uuid, access_token, sort='newest', limi
             time=datetime.datetime.strptime(c['date_updated'][:19], '%Y-%m-%dT%H:%M:%S'),
             stream_id=event_hash
         )
-        db.session.add(r)
         # Check hash
         if not db.query(CommentHash).filter_by(hash=r.to_md5()).count():
+            # Add comment
+            db.session.add(r)
             db.session.commit()
             # Add hash
             db.session.add(CommentHash(hash=r.to_md5()))

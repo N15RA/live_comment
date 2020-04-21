@@ -1,5 +1,7 @@
 import os
 
+SERVER_NAME = 'localhost:8080'
+
 DEBUG = True
 SESSION_PROTECTION = 'strong'
 SECRET_KEY = os.urandom(128)

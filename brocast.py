@@ -15,6 +15,7 @@ from sqlalchemy import or_
 
 SCOPES = ['https://www.googleapis.com/auth/youtube.readonly']
 CLIENT_SECRETS_FILE = 'client_secret.json' # Get this from API console
+# Remember to set the SERVER_NAME
 
 from ext_app import app
 from exts import db
@@ -42,6 +43,10 @@ def listMessage():
 
 @app.route('/authorize')
 def authorize():
+    # Check the CLIENT_SECRETS_FILE
+    if not os.path.exists(CLIENT_SECRETS_FILE):
+        return flask.jsonify({'result': 'error', 'message': 'CLIENT_SECRETS_FILE is not set'}), 400
+    
     # Create flow instance to manage the OAuth 2.0 Authorization Grant Flow steps.
     flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
         CLIENT_SECRETS_FILE, scopes=SCOPES)
@@ -126,4 +131,4 @@ if __name__ == '__main__':
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
     # Specify a hostname and port that are set as a valid redirect URI
     # for your API project in the Google API Console.
-    app.run('localhost', 8080, debug=True)
+    app.run('localhost', 8080)
