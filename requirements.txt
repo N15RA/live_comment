@@ -8,3 +8,4 @@ sqlservice
 flask_migrate
 flask_script
 requests
+click

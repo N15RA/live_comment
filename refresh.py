@@ -1,3 +1,4 @@
+import click
 import requests
 import json
 import time
@@ -199,7 +200,17 @@ def refresh_slido(hash):
 
 # ---------------------------------------------------------------------------------
 
-def main():
+def print_help_msg(command):
+    with click.Context(command) as ctx:
+        click.echo(command.get_help(ctx))
+
+@click.command()
+@click.option('--youtube', help='youtube stream ID')
+@click.option('--slido', help='slido event hash')
+def main(youtube, slido):
+    if not youtube and not slido:
+        print_help_msg(main)
+        return
     #
     start = time.time()
     while True:
@@ -208,29 +219,32 @@ def main():
             cnt = 0
             # Try to refresh
             # refresh youtube comments
-            pass_flag = True
-            while not refresh_yt(YT_STREAM_ID):
-                cnt += 1
-                print('Retry youtube')
-                if cnt >= 3:
-                    cnt = 0
-                    pass_flag = False
-                    break
-            if pass_flag:
-                print('Refreshed youtube stream comment')
+            if youtube:
+                pass_flag = True
+                while not refresh_yt(youtube):
+                    cnt += 1
+                    print('Retry youtube')
+                    if cnt >= 3:
+                        cnt = 0
+                        pass_flag = False
+                        break
+                if pass_flag:
+                    print('Refreshed youtube stream comment')
             # refresh slido comment
-            pass_flag = True
-            while not refresh_slido(SLIDO_EVENT_HASH):
-                cnt += 1
-                print('Retry slido')
-                if cnt >= 3:
-                    cnt = 0
-                    pass_flag = False
-                    break
-            if pass_flag:
-                print('Refreshed slido')
+            if slido:
+                pass_flag = True
+                while not refresh_slido(slido):
+                    cnt += 1
+                    print('Retry slido')
+                    if cnt >= 3:
+                        cnt = 0
+                        pass_flag = False
+                        break
+                if pass_flag:
+                    print('Refreshed slido')
             #
-            print('Succeeded to refresh the comments: {}'.format(datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')))
+            if pass_flag:
+                print('Succeeded to refresh the comments: {}'.format(datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')))
             start = time.time()
         time.sleep(1)
 
