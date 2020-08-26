@@ -207,15 +207,17 @@ def print_help_msg(command):
 @click.command()
 @click.option('--youtube', help='youtube stream ID')
 @click.option('--slido', help='slido event hash')
-def main(youtube, slido):
+@click.option('-t', '--time', 't', help='Refresh Time')
+def main(youtube, slido, t):
     if not youtube and not slido:
         print_help_msg(main)
         return
     #
+    t = float(t) if t else 5.0
     start = time.time()
     while True:
         elapsed = time.time() - start
-        if elapsed >= 1.0:
+        if elapsed >= t:
             cnt = 0
             # Try to refresh
             # refresh youtube comments
