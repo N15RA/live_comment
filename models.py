@@ -60,3 +60,13 @@ class Token(Model):
 
     def __repr__(self):
         return f'<Token {self.id}>'
+
+class User(Model):
+    __tablename__ = 'user'
+    
+    id = Column(types.Integer, primary_key=True)
+    username = Column(types.String(), nullable=False, unique=True)
+    password = Column(types.String(), nullable=False)
+    
+    def __repr__(self):
+        return f'<User {self.id} username="{self.username}">'

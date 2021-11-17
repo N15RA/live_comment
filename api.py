@@ -21,6 +21,11 @@ from ext_app import app
 from exts import db
 from models import *
 from utils import credentials_to_dict
+import auth
+import config
+
+from flask_migrate import Migrate
+migrate = Migrate(app, db)
 
 @app.route('/')
 def index():
@@ -40,6 +45,23 @@ def listMessage():
     ]
 
     return flask.jsonify(comment_list)
+
+from werkzeug.security import check_password_hash
+
+@auth.http_basic_auth.verify_password
+def verify_password(username, password):
+    user = db.query(User).filter(User.username==username).first()
+    
+    if user and check_password_hash(user.password, password):
+        return user
+    else:
+        return None
+
+# TODO: Add unauthorized access page
+@app.route('/secret')
+@auth.http_basic_auth.login_required
+def secret():
+    return 'TODO'
 
 @app.route('/authorize')
 def authorize():
@@ -131,4 +153,6 @@ if __name__ == '__main__':
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
     # Specify a hostname and port that are set as a valid redirect URI
     # for your API project in the Google API Console.
-    app.run('localhost', 8080)
+    ip = config.SERVER_NAME.split(':')[0]
+    port = int(config.SERVER_NAME.split(':')[1], 10)
+    app.run(ip, port)

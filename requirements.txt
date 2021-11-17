@@ -8,5 +8,6 @@ sqlalchemy==1.3.23
 sqlservice
 flask_migrate
 flask_script
+flask_httpauth
 requests
 click

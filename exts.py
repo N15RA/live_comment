@@ -49,6 +49,10 @@ class FlaskSQLService(object):
             self.remove()
             return response_or_exc
 
+    # In flask_migrate, this will be called
+    def get_engine(self):
+        return self.engine
+
     def __getattr__(self, attr):
         """Proxy attribute access to SQLClient instance."""
         return getattr(current_app.extensions['sqlservice'], attr)

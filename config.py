@@ -1,6 +1,6 @@
 import os
 
-SERVER_NAME = 'localhost:8080'
+SERVER_NAME = '140.136.149.82:8080'
 
 DEBUG = True
 SESSION_PROTECTION = 'strong'
@@ -25,3 +25,12 @@ SQL_CONVERT_UNICODE = True
 SQL_AUTOCOMMIT = False
 SQL_AUTOFLUSH = True
 SQL_EXPIRE_ON_COMMIT = True
+
+# HACK: this
+local = dict(locals())
+sql_vars = {}
+for k, v in local.items():
+    if 'SQL' in k:
+        sql_vars[k] = v
+del local
+SQL_VARIABLES = sql_vars
