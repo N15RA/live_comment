@@ -27,6 +27,8 @@ import config
 from flask_migrate import Migrate
 migrate = Migrate(app, db)
 
+from flask import render_template, request, redirect, url_for
+
 @app.route('/')
 def index():
     return flask.redirect(flask.url_for('listMessage'))
@@ -51,17 +53,41 @@ from werkzeug.security import check_password_hash
 @auth.http_basic_auth.verify_password
 def verify_password(username, password):
     user = db.query(User).filter(User.username==username).first()
-    
+
     if user and check_password_hash(user.password, password):
         return user
     else:
         return None
 
 # TODO: Add unauthorized access page
-@app.route('/secret')
+@app.route('/admin', methods=['GET'])
 @auth.http_basic_auth.login_required
-def secret():
-    return 'TODO'
+def admin_page():        
+    collector_list = db.query(Collector).all()
+    return render_template('admin.html', collector=collector_list)
+
+@app.route('/admin/addCollector', methods=['POST'])
+@auth.http_basic_auth.login_required
+def add_collector():
+    if 'slidoInput' in request.form and request.form['slidoInput']:
+        collector = Collector()
+        collector.type = 'slido'
+        collector.hash = request.form['slidoInput']
+        db.session.add(collector)
+        db.session.commit()
+        
+    return redirect(url_for('admin_page'))
+
+@app.route('/admin/delCollector', methods=['POST'])
+@auth.http_basic_auth.login_required
+def del_collector():
+    if request.form:
+        for i in request.form.keys():
+            slido_id = i.lstrip('slido_')
+            db.query(Collector).filter(Collector.id == slido_id).delete()
+            db.session.commit()
+
+    return redirect(url_for('admin_page'))
 
 @app.route('/authorize')
 def authorize():
@@ -91,7 +117,6 @@ def authorize():
 
     return flask.redirect(authorization_url)
 
-
 @app.route('/oauth2callback')
 def oauth2callback():
     # Specify the state when creating the flow in the callback so that it can
@@ -119,7 +144,6 @@ def oauth2callback():
 
     return flask.redirect(flask.url_for('index'))
 
-
 @app.route('/revoke')
 def revoke():
     if 'credentials' not in flask.session:
@@ -138,7 +162,6 @@ def revoke():
         return('Credentials successfully revoked.')
     else:
         return('An error occurred.')
-
 
 @app.route('/clear')
 def clear_credentials():

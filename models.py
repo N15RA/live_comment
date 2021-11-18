@@ -70,3 +70,13 @@ class User(Model):
     
     def __repr__(self):
         return f'<User {self.id} username="{self.username}">'
+
+class Collector(Model):
+    __tablename__ = 'collector'
+    
+    id = Column(types.Integer, primary_key=True)
+    type = Column(types.String(), nullable=False)
+    hash = Column(types.String())
+
+    def __repr__(self):
+        return f'<Collector {self.id} type={self.type} hash={self.hash}">'
