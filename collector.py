@@ -2,6 +2,7 @@ import click
 import requests
 import json
 import time
+import multiprocessing
 
 import google.oauth2.credentials
 import googleapiclient.discovery
@@ -180,6 +181,7 @@ def get_slido_comments(event_hash, event_uuid, access_token, sort='newest', limi
 event_uuid = None
 access_token = None
 def refresh_slido(hash):
+    print('Refresh slido {}'.format(hash))
     try:
         # Update event uuid
         global event_uuid
@@ -200,55 +202,49 @@ def refresh_slido(hash):
 
 # ---------------------------------------------------------------------------------
 
-def print_help_msg(command):
-    with click.Context(command) as ctx:
-        click.echo(command.get_help(ctx))
-
-@click.command()
-@click.option('--youtube', help='youtube stream ID')
-@click.option('--slido', help='slido event hash')
-@click.option('-t', '--time', 't', help='Refresh Time')
-def main(youtube, slido, t):
-    if not youtube and not slido:
-        print_help_msg(main)
-        return
-    #
-    t = float(t) if t else 5.0
-    start = time.time()
-    while True:
-        elapsed = time.time() - start
-        if elapsed >= t:
+def refresh_yt_with_retry(stream_id, credentials=None):
+    pass_flag = True
+    while not refresh_yt(youtube):
+        cnt += 1
+        print('Retry youtube')
+        if cnt >= 3:
             cnt = 0
-            # Try to refresh
-            # refresh youtube comments
-            if youtube:
-                pass_flag = True
-                while not refresh_yt(youtube):
-                    cnt += 1
-                    print('Retry youtube')
-                    if cnt >= 3:
-                        cnt = 0
-                        pass_flag = False
-                        break
-                if pass_flag:
-                    print('Refreshed youtube stream comment')
-            # refresh slido comment
-            if slido:
-                pass_flag = True
-                while not refresh_slido(slido):
-                    cnt += 1
-                    print('Retry slido')
-                    if cnt >= 3:
-                        cnt = 0
-                        pass_flag = False
-                        break
-                if pass_flag:
-                    print('Refreshed slido')
-            #
-            if pass_flag:
-                print('Succeeded to refresh the comments: {}'.format(datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')))
-            start = time.time()
-        time.sleep(1)
+            pass_flag = False
+            break
+    return pass_flag
+
+def refresh_slido_with_retry(slido):
+    pass_flag = True
+    while not refresh_slido(slido):
+        cnt += 1
+        print('Retry slido')
+        if cnt >= 3:
+            cnt = 0
+            pass_flag = False
+            break
+        time.sleep(0.5)
+    return pass_flag
+
+def refresh_collector(collector: Collector):
+    while True:
+        if collector.type == 'slido':
+            refresh_slido_with_retry(collector.hash)
+        elif collector.type == 'youtube':
+            print('TODO')
+            
+        time.sleep(5)
 
 if __name__ == '__main__':
-    main()
+    #
+    worker = {}
+    
+    while True:
+        c = db.query(Collector).all()
+    
+        for i in c:
+            if i.id not in worker:
+                worker[i.id] = multiprocessing.Process(target=refresh_collector, args=(i,))
+                worker[i.id].start()
+                print('Started worker for collector {} type={}'.format(i.id, i.type))
+                
+        time.sleep(1)

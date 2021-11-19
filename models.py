@@ -77,6 +77,7 @@ class Collector(Model):
     id = Column(types.Integer, primary_key=True)
     type = Column(types.String(), nullable=False)
     hash = Column(types.String())
+    last_update = Column(types.TIMESTAMP())
 
     def __repr__(self):
         return f'<Collector {self.id} type={self.type} hash={self.hash}">'

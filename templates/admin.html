@@ -15,7 +15,7 @@
             <div class="row">
                 <div class="col-md-3"></div>
                 <div class="col-md-7">
-                    <form method="POST" action="/admin/addCollector">
+                    <form method="POST" action="{{ url_for('add_collector') }}">
                         <div class="row">
                             <label for="slido" class="form-label">Slido</label>
                             <div class="col">
@@ -32,7 +32,7 @@
             <div class="row mt-2">
                 <div class="col-md-3"></div>
                 <div class="col-md-7">
-                    <form method="POST" action="/admin/delCollector">
+                    <form method="POST" action="{{ url_for('del_collector') }}">
                         {% for c in collector %}
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input" id="slidoCheckbox{{loop.index}}" name="slido_{{c.id}}">
