@@ -1,6 +1,6 @@
 import os
 
-SERVER_NAME = '140.136.149.82:8080'
+#SERVER_NAME = 'c.nisra.net:8080'
 
 DEBUG = True
 SESSION_PROTECTION = 'strong'

@@ -1,0 +1,12 @@
+[Unit]
+Description=NISRA comment
+After=network.target
+
+[Service]
+User=nisra
+Group=www-data
+WorkingDirectory=/srv/live_comment
+ExecStart=/usr/local/bin/uwsgi --ini /srv/live_comment/uwsgi.ini
+
+[Install]
+WantedBy=multi-user.target
