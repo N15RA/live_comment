@@ -226,7 +226,13 @@ def refresh_slido_with_retry(slido):
     return pass_flag
 
 def refresh_collector(collector: Collector):
+    local_db = SQLClient(config, model_class=Model)
+
     while True:
+        if not local_db.query(Collector).get(collector.id):
+            print(f'Collector {collector.id} exited')
+            exit(0)
+
         if collector.type == 'slido':
             refresh_slido_with_retry(collector.hash)
         elif collector.type == 'youtube':
@@ -241,10 +247,17 @@ if __name__ == '__main__':
     while True:
         c = db.query(Collector).all()
     
+        # Start new process for collectors
         for i in c:
             if i.id not in worker:
                 worker[i.id] = multiprocessing.Process(target=refresh_collector, args=(i,))
                 worker[i.id].start()
                 print('Started worker for collector {} type={}'.format(i.id, i.type))
-                
+
+        # Remove dead processes
+        ww = list(worker.items())
+        for i, p in ww:
+            if not p.is_alive():
+                del worker[i]
+
         time.sleep(1)

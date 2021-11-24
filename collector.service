@@ -1,0 +1,12 @@
+[Unit]
+Description=NISRA comment collector
+After=network.target
+
+[Service]
+User=nisra
+Group=nisra
+WorkingDirectory=/srv/live_comment
+ExecStart=/usr/bin/python3 /srv/live_comment/collector.py
+
+[Install]
+WantedBy=multi-user.target
